@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { StatusBadge, AdminMarkBadge } from "./ui/Badge";
 import AdminMarkEditor from "./AdminMarkEditor";
+import AdminPlayerCard from "./AdminPlayerCard";
 import {
   updateRegistrationStatus,
   updateAdminMark,
@@ -284,6 +285,14 @@ export default function RegistrationDetail({ registration, customTeams = [], onC
               onSave={handleMarkSave}
               saving={markSaving}
             />
+          </div>
+
+          {/* Player ID Card Download */}
+          <div className="border-t border-slate-100 pt-5">
+            <p className="text-sm font-medium text-slate-700 mb-4">
+              Player ID Card
+            </p>
+            <AdminPlayerCard registration={{...registration, status, adminMark}} />
           </div>
         </div>
       </div>
