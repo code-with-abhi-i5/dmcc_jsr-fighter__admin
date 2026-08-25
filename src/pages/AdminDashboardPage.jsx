@@ -6,6 +6,7 @@ import { fetchAllRegistrations } from "../services/registrations";
 import { exportToCSV } from "../utils/exportUtils";
 import { fetchTeams } from "../services/teamService";
 import Dashboard from "../components/Dashboard";
+import RevenueTracker from "../components/RevenueTracker";
 import SearchBar from "../components/SearchBar";
 import Filters from "../components/Filters";
 import RegistrationList from "../components/RegistrationList";
@@ -160,6 +161,7 @@ export default function AdminDashboardPage() {
           activeFilter={statusFilter}
           onCardClick={setStatusFilter}
         />
+        <RevenueTracker counts={counts} feePerPlayer={200} />
         
         <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
