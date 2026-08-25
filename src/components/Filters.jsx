@@ -10,7 +10,6 @@ const statusOptions = [
 
 const jerseySizeOptions = [
   { value: "all", label: "All Sizes" },
-  { value: "S", label: "S" },
   { value: "M", label: "M" },
   { value: "L", label: "L" },
   { value: "XL", label: "XL" },

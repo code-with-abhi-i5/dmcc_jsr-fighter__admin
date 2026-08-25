@@ -6,7 +6,7 @@ export default function AnalyticsPanel({ registrations, customTeams = [] }) {
   const stats = useMemo(() => {
     const approved = registrations.filter(r => r.status === "approved" && !r.isDeleted);
     
-    const sizes = { S: 0, M: 0, L: 0, XL: 0, XXL: 0, XXXL: 0 };
+    const sizes = { M: 0, L: 0, XL: 0, XXL: 0, XXXL: 0 };
     
     // Initialize teams dynamically
     const teams = { Unassigned: 0 };
