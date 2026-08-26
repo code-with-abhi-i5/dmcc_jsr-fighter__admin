@@ -12,6 +12,7 @@ import {
   Clock,
   Loader2,
   Trash2,
+  Activity,
 } from "lucide-react";
 import { StatusBadge, AdminMarkBadge } from "./ui/Badge";
 import AdminMarkEditor from "./AdminMarkEditor";
@@ -191,6 +192,11 @@ export default function RegistrationDetail({ registration, customTeams = [], onC
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <DetailItem
+              icon={Activity}
+              label="Player Role"
+              value={registration.role || "Not Specified"}
+            />
             <DetailItem
               icon={Phone}
               label="Phone Number"

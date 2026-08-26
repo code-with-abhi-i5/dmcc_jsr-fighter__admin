@@ -11,6 +11,7 @@ import SearchBar from "../components/SearchBar";
 import Filters from "../components/Filters";
 import RegistrationList from "../components/RegistrationList";
 import RegistrationDetail from "../components/RegistrationDetail";
+import RoleStats from "../components/RoleStats";
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
@@ -161,7 +162,11 @@ export default function AdminDashboardPage() {
           activeFilter={statusFilter}
           onCardClick={setStatusFilter}
         />
-        <RevenueTracker counts={counts} feePerPlayer={200} />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RevenueTracker counts={counts} feePerPlayer={200} />
+          <RoleStats registrations={registrations} />
+        </div>
         
         <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
             <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">

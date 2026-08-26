@@ -31,10 +31,13 @@ export default function RegistrationCard({ registration, onClick }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <h3 className="font-semibold text-slate-900 truncate">
+              <h3 className="font-semibold text-slate-900 truncate flex items-center gap-2">
                 {registration.playerName}
+                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium tracking-wide uppercase">
+                  {registration.role || "N/A"}
+                </span>
               </h3>
-              <p className="text-xs text-slate-500 font-mono">
+              <p className="text-xs text-slate-500 font-mono mt-0.5">
                 {registration.registrationId}
               </p>
             </div>

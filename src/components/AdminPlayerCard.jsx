@@ -1,10 +1,27 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Download } from "lucide-react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
+import toast from "react-hot-toast";
 import logoImg from "../assets/logo.jpg";
 
 export default function AdminPlayerCard({ registration }) {
   const cardRef = useRef(null);
+  const [imgSrc, setImgSrc] = useState("");
+
+  useEffect(() => {
+    if (!registration.playerPhotoUrl) return;
+    const fetchImg = async () => {
+      try {
+        const res = await fetch(registration.playerPhotoUrl);
+        const blob = await res.blob();
+        setImgSrc(URL.createObjectURL(blob));
+      } catch (e) {
+        console.error("Blob fetch failed", e);
+        setImgSrc(registration.playerPhotoUrl); // fallback
+      }
+    };
+    fetchImg();
+  }, [registration.playerPhotoUrl]);
 
   const formatDate = (timestamp) => {
     if (!timestamp) return "N/A";
@@ -21,28 +38,24 @@ export default function AdminPlayerCard({ registration }) {
 
   const handleDownload = async () => {
     if (!cardRef.current) return;
+    const toastId = toast.loading("Downloading card...");
     try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 3,
         backgroundColor: null,
       });
       const link = document.createElement("a");
       link.download = `${registration.playerName}_DMCC_Card.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.href = dataUrl;
       link.click();
+      toast.success("Card downloaded successfully!", { id: toastId });
     } catch (err) {
       console.error("Download failed:", err);
+      toast.error("Error: " + (err.message || String(err)), { id: toastId });
     }
   };
 
-  const statusColor =
-    registration.status === "approved"
-      ? "#10b981"
-      : registration.status === "rejected"
-      ? "#f43f5e"
-      : "#3b82f6";
+
 
   return (
     <div>
@@ -108,25 +121,40 @@ export default function AdminPlayerCard({ registration }) {
             }}
             crossOrigin="anonymous"
           />
-          <div style={{ textAlign: "left" }}>
+          <div style={{ display: "block", textAlign: "left", flex: 1 }}>
             <div
               style={{
-                fontSize: "18px",
-                fontWeight: "800",
+                fontSize: "14px",
+                fontWeight: "900",
                 color: "#f8fafc",
-                letterSpacing: "2px",
+                letterSpacing: "0.5px",
                 lineHeight: "1.2",
+                marginBottom: "4px",
+                whiteSpace: "nowrap",
               }}
             >
-              DMCC JSR FIGHTER
+              DMCC & JSR FIGHTER LEAGUE
             </div>
             <div
               style={{
-                fontSize: "10px",
-                fontWeight: "600",
+                fontSize: "11px",
+                fontWeight: "700",
+                color: "#e2e8f0",
+                letterSpacing: "1px",
+                lineHeight: "1.2",
+                marginBottom: "4px",
+              }}
+            >
+              SESSION 02 (2026)
+            </div>
+            <div
+              style={{
+                fontSize: "9px",
+                fontWeight: "700",
                 color: "#10b981",
-                letterSpacing: "3px",
+                letterSpacing: "2px",
                 textTransform: "uppercase",
+                lineHeight: "1.2",
               }}
             >
               PLAYER ID CARD
@@ -146,26 +174,24 @@ export default function AdminPlayerCard({ registration }) {
         {/* Player Photo + Name Section */}
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
+            textAlign: "center",
             padding: "20px 24px 12px",
             position: "relative",
           }}
         >
           <div
             style={{
-              width: "110px",
-              height: "110px",
+              width: "200px",
+              height: "200px",
               borderRadius: "20px",
               overflow: "hidden",
               border: "3px solid #10b981",
               boxShadow: "0 8px 32px rgba(16, 185, 129, 0.2)",
-              marginBottom: "12px",
+              margin: "0 auto 12px",
             }}
           >
             <img
-              src={registration.playerPhotoUrl}
+              src={imgSrc || logoImg}
               alt={registration.playerName}
               style={{
                 width: "100%",
@@ -183,7 +209,12 @@ export default function AdminPlayerCard({ registration }) {
               color: "#f8fafc",
               textAlign: "center",
               letterSpacing: "0.5px",
-              marginBottom: "4px",
+              lineHeight: "1.2",
+              marginBottom: "10px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              width: "100%",
             }}
           >
             {registration.playerName}
@@ -202,6 +233,8 @@ export default function AdminPlayerCard({ registration }) {
               fontWeight: "700",
               color: "#10b981",
               letterSpacing: "1px",
+              lineHeight: "1.2",
+              margin: "0 auto",
             }}
           >
             {registration.registrationId}
@@ -211,60 +244,25 @@ export default function AdminPlayerCard({ registration }) {
         {/* Info Grid */}
         <div
           style={{
-            padding: "12px 24px 8px",
+            padding: "8px 24px 24px",
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
-            gap: "12px",
+            gap: "8px",
           }}
         >
           <InfoItem label="Jersey Number" value={`#${registration.jerseyNumber}`} />
           <InfoItem label="Jersey Size" value={registration.jerseySize} />
           <InfoItem label="Phone" value={registration.phoneNumber} />
           <InfoItem
-            label="Registered"
-            value={formatDate(registration.createdAt)}
+            label="Player Role"
+            value={registration.role || "N/A"}
           />
           <div style={{ gridColumn: "1 / -1" }}>
             <InfoItem label="Address" value={registration.address} />
           </div>
         </div>
 
-        {/* Status Badge */}
-        <div
-          style={{
-            padding: "16px 24px 24px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "10px 28px",
-              borderRadius: "14px",
-              background: `${statusColor}18`,
-              border: `2px solid ${statusColor}50`,
-              fontSize: "15px",
-              fontWeight: "800",
-              color: statusColor,
-              textTransform: "uppercase",
-              letterSpacing: "2px",
-            }}
-          >
-            <span
-              style={{
-                width: "10px",
-                height: "10px",
-                borderRadius: "50%",
-                background: statusColor,
-                boxShadow: `0 0 8px ${statusColor}`,
-              }}
-            />
-            {registration.status}
-          </div>
-        </div>
+
       </div>
 
       {/* Download Button */}
@@ -288,24 +286,24 @@ function InfoItem({ label, value }) {
         background: "rgba(30, 41, 59, 0.8)",
         border: "1px solid rgba(51, 65, 85, 0.6)",
         borderRadius: "12px",
-        padding: "10px 14px",
+        padding: "6px 10px",
       }}
     >
       <div
         style={{
-          fontSize: "9px",
+          fontSize: "8px",
           fontWeight: "700",
           color: "#10b981",
           textTransform: "uppercase",
           letterSpacing: "1.5px",
-          marginBottom: "4px",
+          marginBottom: "2px",
         }}
       >
         {label}
       </div>
       <div
         style={{
-          fontSize: "13px",
+          fontSize: "11px",
           fontWeight: "600",
           color: "#e2e8f0",
           lineHeight: "1.4",

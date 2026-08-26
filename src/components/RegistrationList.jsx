@@ -77,9 +77,14 @@ export default function RegistrationList({ registrations, onSelect, loading }) {
                           className="w-9 h-9 rounded-lg object-cover bg-slate-100"
                           loading="lazy"
                         />
-                        <span className="font-medium text-slate-900 truncate max-w-[150px]">
-                          {reg.playerName}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900 truncate max-w-[150px]">
+                            {reg.playerName}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-medium tracking-wide uppercase mt-0.5">
+                            {reg.role || "Not Specified"}
+                          </span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-slate-600">{reg.phoneNumber}</td>
