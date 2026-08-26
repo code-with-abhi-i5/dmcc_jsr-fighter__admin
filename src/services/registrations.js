@@ -112,3 +112,14 @@ export async function updatePlayerTeam(docId, team) {
     updatedAt: serverTimestamp(),
   });
 }
+
+/**
+ * Updates the registration ID (Serial Number).
+ */
+export async function updateRegistrationId(docId, newId) {
+  const docRef = doc(db, REGISTRATIONS_COLLECTION, docId);
+  await updateDoc(docRef, {
+    registrationId: newId,
+    updatedAt: serverTimestamp(),
+  });
+}
