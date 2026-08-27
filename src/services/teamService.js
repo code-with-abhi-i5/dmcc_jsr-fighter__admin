@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase/config";
 
 const METADATA_COLLECTION = "metadata";
@@ -41,4 +41,18 @@ export async function saveTeams(teamsArray) {
     console.error("Error saving teams config:", error);
     throw error;
   }
+}
+
+/**
+ * Listens to the dynamic list of teams in real-time.
+ */
+export function listenToTeams(callback) {
+  const docRef = doc(db, METADATA_COLLECTION, TEAM_CONFIG_DOC);
+  return onSnapshot(docRef, (docSnap) => {
+    if (docSnap.exists() && docSnap.data().teams) {
+      callback(docSnap.data().teams);
+    } else {
+      callback(DEFAULT_TEAMS);
+    }
+  });
 }

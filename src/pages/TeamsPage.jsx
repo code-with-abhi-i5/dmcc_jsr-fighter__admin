@@ -1,39 +1,60 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { fetchAllRegistrations } from "../services/registrations";
-import { fetchTeams, saveTeams } from "../services/teamService";
+import React, { useState, useEffect } from "react";
+import { listenToRegistrations } from "../services/registrations";
+import { listenToTeams, saveTeams } from "../services/teamService";
+import { listenToTeamCards, deleteTeamCard } from "../services/cardService";
 import AnalyticsPanel from "../components/AnalyticsPanel";
 import toast from "react-hot-toast";
-import { Plus, Trash2, Loader2, Save } from "lucide-react";
+import { Plus, Trash2, Loader2, Save, Image as ImageIcon, X } from "lucide-react";
+import TeamCard from "../components/TeamCard";
 
 export default function TeamsPage() {
   const [registrations, setRegistrations] = useState([]);
   const [teams, setTeams] = useState([]);
+  const [teamCards, setTeamCards] = useState({});
   const [loading, setLoading] = useState(true);
 
   // Manage Teams State
   const [newTeamName, setNewTeamName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [regData, teamsData] = await Promise.all([
-        fetchAllRegistrations(),
-        fetchTeams()
-      ]);
-      setRegistrations(regData);
-      setTeams(teamsData);
-    } catch (error) {
-      console.error("Failed to load data:", error);
-      toast.error("Failed to load data.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Modal state
+  const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    let regLoaded = false;
+    let teamsLoaded = false;
+    let cardsLoaded = false;
+
+    const checkLoading = () => {
+      if (regLoaded && teamsLoaded && cardsLoaded) {
+        setLoading(false);
+      }
+    };
+
+    const unsubReg = listenToRegistrations((data) => {
+      setRegistrations(data);
+      regLoaded = true;
+      checkLoading();
+    });
+
+    const unsubTeams = listenToTeams((data) => {
+      setTeams(data);
+      teamsLoaded = true;
+      checkLoading();
+    });
+
+    const unsubCards = listenToTeamCards((data) => {
+      setTeamCards(data);
+      cardsLoaded = true;
+      checkLoading();
+    });
+
+    return () => {
+      unsubReg();
+      unsubTeams();
+      unsubCards();
+    };
+  }, []);
 
   const handleAddTeam = (e) => {
     e.preventDefault();
@@ -66,6 +87,20 @@ export default function TeamsPage() {
     }
   };
 
+  const handleDeleteCard = async (teamName) => {
+    if (!window.confirm(`Are you sure you want to delete the card for "${teamName}"?`)) return;
+    
+    try {
+      await deleteTeamCard(teamName);
+      toast.success(`Card for ${teamName} deleted successfully!`);
+      if (selectedCard?.teamName === teamName) {
+        setSelectedCard(null); // Close modal if it was open
+      }
+    } catch (error) {
+      toast.error("Failed to delete the card.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -78,7 +113,7 @@ export default function TeamsPage() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 animate-fade-in">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8 animate-fade-in relative">
       
       {/* Analytics Charts */}
       <section>
@@ -182,9 +217,29 @@ export default function TeamsPage() {
             return (
               <div key={teamName} className="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden flex flex-col">
                 <div className={`px-4 py-3 border-b flex justify-between items-center ${teamName === "Unassigned" ? "bg-slate-100 border-slate-200" : "bg-emerald-50 border-emerald-100"}`}>
-                  <h3 className={`font-bold ${teamName === "Unassigned" ? "text-slate-600" : "text-emerald-800"}`}>
-                    {teamName}
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className={`font-bold ${teamName === "Unassigned" ? "text-slate-600" : "text-emerald-800"}`}>
+                      {teamName}
+                    </h3>
+                    {teamCards[teamName] && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setSelectedCard(teamCards[teamName])}
+                          className="flex items-center justify-center p-1.5 bg-emerald-100 text-emerald-700 rounded-md hover:bg-emerald-200 transition-colors shadow-sm"
+                          title="View Team Card"
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCard(teamName)}
+                          className="flex items-center justify-center p-1.5 bg-red-50 text-red-500 rounded-md hover:bg-red-100 hover:text-red-600 transition-colors shadow-sm"
+                          title="Delete Team Card"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <span className={`text-xs font-bold px-2 py-1 rounded-full ${teamName === "Unassigned" ? "bg-slate-200 text-slate-700" : "bg-emerald-200 text-emerald-800"}`}>
                     {teamPlayers.length} Players
                   </span>
@@ -212,6 +267,23 @@ export default function TeamsPage() {
           })}
         </div>
       </section>
+
+      {/* Card Preview Modal */}
+      {selectedCard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
+          <div className="relative">
+            <button
+              onClick={() => setSelectedCard(null)}
+              className="absolute -top-12 right-0 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <div className="shadow-2xl shadow-black/50 rounded-[24px]">
+              <TeamCard {...selectedCard} />
+            </div>
+          </div>
+        </div>
+      )}
 
     </main>
   );
