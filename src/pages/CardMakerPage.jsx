@@ -471,6 +471,7 @@ export default function CardMakerPage() {
               style={{
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr 1fr",
+                alignItems: "start",
                 gap: "10px",
                 padding: "0 16px 28px",
                 position: "relative",
@@ -535,7 +536,7 @@ function PersonSlot({ label, name, photo }) {
             <img
               src={photo}
               alt={name || label}
-              style={{ width: "100%", height: "100%", objectFit: "cover", zIndex: 1 }}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 1 }}
             />
           ) : (
             <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
