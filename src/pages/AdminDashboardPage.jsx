@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Trophy, LogOut, RefreshCw, Download } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "../contexts/AuthContext";
-import { fetchAllRegistrations } from "../services/registrations";
+import { listenToRegistrations } from "../services/registrations";
 import { exportToCSV } from "../utils/exportUtils";
 import { fetchTeams } from "../services/teamService";
 import Dashboard from "../components/Dashboard";
@@ -30,27 +30,27 @@ export default function AdminDashboardPage() {
   const [teamFilter, setTeamFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
 
-  // Load registrations and teams
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  // Load teams once
+  const loadTeams = useCallback(async () => {
     try {
-      const [regData, teamsData] = await Promise.all([
-        fetchAllRegistrations(),
-        fetchTeams()
-      ]);
-      setRegistrations(regData);
+      const teamsData = await fetchTeams();
       setTeams(teamsData);
     } catch (error) {
-      console.error("Failed to load data:", error);
-      toast.error("Failed to load data. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error("Failed to load teams:", error);
     }
   }, []);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadTeams();
+    
+    // Set up real-time listener for registrations (uses offline cache automatically)
+    const unsubscribe = listenToRegistrations((data) => {
+      setRegistrations(data);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [loadTeams]);
 
   // Dashboard counts
   const counts = useMemo(() => {
@@ -127,19 +127,17 @@ export default function AdminDashboardPage() {
     return result;
   }, [registrations, searchQuery, statusFilter, jerseySizeFilter, adminMarkFilter, teamFilter, sortBy]);
 
-  // Handle inline updates from detail modal
+  // Handle inline updates from detail modal (optional, since onSnapshot handles it, but good for immediate UI feedback)
   const handleUpdate = (docId, updates) => {
-    setRegistrations((prev) =>
-      prev.map((r) => (r.id === docId ? { ...r, ...updates } : r))
-    );
-    // Also update the selected registration if open
+    // We let onSnapshot handle updating the list automatically.
+    // Only update the selected registration if open.
     if (selectedRegistration?.id === docId) {
       setSelectedRegistration((prev) => ({ ...prev, ...updates }));
     }
   };
 
   const handleDelete = (docId) => {
-    setRegistrations((prev) => prev.filter((r) => r.id !== docId));
+    // Let onSnapshot handle list update.
     if (selectedRegistration?.id === docId) {
       setSelectedRegistration(null);
     }
@@ -188,13 +186,13 @@ export default function AdminDashboardPage() {
                   <span className="hidden sm:inline">Export</span>
                 </button>
                 <button
-                  onClick={loadData}
+                  onClick={loadTeams} // Re-fetch teams
                   disabled={loading}
                   className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
-                  title="Refresh Data"
+                  title="Sync Teams"
                 >
                   <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                  <span className="hidden sm:inline">Refresh</span>
+                  <span className="hidden sm:inline">Sync</span>
                 </button>
               </div>
             </div>

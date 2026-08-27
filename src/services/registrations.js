@@ -9,6 +9,7 @@ import {
   limit,
   startAfter,
   serverTimestamp,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 
@@ -67,6 +68,26 @@ export async function fetchAllRegistrations() {
     createdAt: doc.data().createdAt?.toDate?.() || new Date(),
     updatedAt: doc.data().updatedAt?.toDate?.() || new Date(),
   }));
+}
+
+/**
+ * Listens to ALL registrations in real-time (optimal for caching and getting only new docs).
+ */
+export function listenToRegistrations(callback) {
+  const q = query(
+    collection(db, REGISTRATIONS_COLLECTION),
+    orderBy("createdAt", "desc")
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const registrations = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate?.() || new Date(),
+    }));
+    callback(registrations);
+  });
 }
 
 /**
