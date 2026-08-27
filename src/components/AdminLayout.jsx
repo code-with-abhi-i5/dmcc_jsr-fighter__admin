@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, NavLink } from "react-router-dom";
-import { Trophy, LogOut, Users, Settings } from "lucide-react";
+import { Trophy, LogOut, Users, Settings, ImagePlus } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function AdminLayout() {
@@ -60,6 +60,19 @@ export default function AdminLayout() {
             >
               <Settings className="w-4 h-4" />
               Teams & Analytics
+            </NavLink>
+            <NavLink
+              to="/card-maker"
+              className={({ isActive }) =>
+                `flex items-center gap-2 py-4 px-1 border-b-2 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "border-emerald-500 text-emerald-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                }`
+              }
+            >
+              <ImagePlus className="w-4 h-4" />
+              Card Maker
             </NavLink>
           </nav>
         </div>

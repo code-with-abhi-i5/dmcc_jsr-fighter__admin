@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import TeamsPage from "./pages/TeamsPage";
+import CardMakerPage from "./pages/CardMakerPage";
 import AdminLayout from "./components/AdminLayout";
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
           >
             <Route index element={<AdminDashboardPage />} />
             <Route path="teams" element={<TeamsPage />} />
+            <Route path="card-maker" element={<CardMakerPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
