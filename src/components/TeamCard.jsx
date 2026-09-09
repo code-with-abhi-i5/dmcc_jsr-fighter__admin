@@ -196,12 +196,10 @@ export default function TeamCard({
               fontSize: "28px",
               fontFamily: "'Teko', sans-serif",
               fontWeight: "700",
-              background: "linear-gradient(180deg, #fff3c4, #e6be44, #b8962e)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
+              color: "#ffe599",
               letterSpacing: "2px",
               lineHeight: "1",
-              filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.6))",
+              textShadow: "0 2px 6px rgba(0,0,0,0.9), 0 0 10px rgba(212,175,55,0.4)",
               whiteSpace: "nowrap",
             }}
           >
@@ -209,13 +207,47 @@ export default function TeamCard({
           </div>
           <div
             style={{
-              fontSize: "11px",
+              fontSize: "13px",
+              fontFamily: "'Oswald', sans-serif",
+              fontWeight: "700",
+              color: "#34d399",
+              letterSpacing: "2.5px",
+              textTransform: "uppercase",
+              marginTop: "2px",
+              lineHeight: "1.1",
+              textShadow: "0 2px 4px rgba(0,0,0,0.9), 0 0 8px rgba(16,185,129,0.3)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            JHARKHAND PREMIER LEAGUE
+          </div>
+          <div
+            style={{
+              fontSize: "10.5px",
+              fontFamily: "'Oswald', sans-serif",
+              fontWeight: "700",
+              color: "#fde047",
+              letterSpacing: "0.8px",
+              textTransform: "uppercase",
+              marginTop: "3px",
+              lineHeight: "1.2",
+              textShadow: "0 1px 3px rgba(0,0,0,0.9)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            BIGGEST SHORT TO LONG LEAGUE CRICKET TOURNAMENT
+          </div>
+          <div
+            style={{
+              fontSize: "10px",
               fontFamily: "'Oswald', sans-serif",
               fontWeight: "600",
               color: "#a7f3d0",
-              letterSpacing: "5px",
-              marginTop: "6px",
-              textShadow: "0 1px 3px rgba(0,0,0,0.6)",
+              letterSpacing: "3.5px",
+              marginTop: "3px",
+              textShadow: "0 1px 3px rgba(0,0,0,0.8)",
+              textTransform: "uppercase",
+              whiteSpace: "nowrap",
             }}
           >
             SEASON 2 • YEAR 2026
